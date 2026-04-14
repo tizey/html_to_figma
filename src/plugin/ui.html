@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Site to Figma</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f6f2;
+        --grid: rgba(17, 17, 17, 0.055);
+        --panel: rgba(255, 255, 255, 0.96);
+        --panel-border: rgba(17, 17, 17, 0.1);
+        --panel-border-strong: rgba(17, 17, 17, 0.18);
+        --text: #111111;
+        --muted: #6a6a6a;
+        --active: #111111;
+        --active-text: #ffffff;
+        --surface: #ffffff;
+        --surface-hover: #f1f1ec;
+        --shadow: 0 18px 40px rgba(17, 17, 17, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background-color: var(--bg);
+        background-image:
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 24px 24px;
+        color: var(--text);
+      }
+
+      body {
+        padding: 16px;
+      }
+
+      .shell {
+        display: grid;
+        gap: 12px;
+      }
+
+      .hero {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: var(--surface);
+        border: 1px solid var(--panel-border-strong);
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 14px 0 8px;
+        font-size: 24px;
+        line-height: 1.04;
+        letter-spacing: -0.04em;
+      }
+
+      .copy {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      form {
+        display: grid;
+        gap: 14px;
+      }
+
+      .field {
+        display: grid;
+        gap: 7px;
+      }
+
+      .field-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      input[type="url"] {
+        width: 100%;
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+        background: var(--surface);
+        color: var(--text);
+        padding: 12px 14px;
+        font-size: 13px;
+        outline: none;
+        transition:
+          border-color 150ms ease,
+          box-shadow 150ms ease,
+          background 150ms ease;
+      }
+
+      input:focus {
+        border-color: rgba(17, 17, 17, 0.42);
+        box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.08);
+      }
+
+      .preset-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .preset-card {
+        border: 1px solid var(--panel-border);
+        border-radius: 16px;
+        padding: 14px;
+        background: var(--surface);
+        cursor: pointer;
+        transition:
+          transform 150ms ease,
+          border-color 150ms ease,
+          box-shadow 150ms ease,
+          background 150ms ease;
+      }
+
+      .preset-card:hover {
+        transform: translateY(-1px);
+        background: var(--surface-hover);
+        box-shadow: 0 10px 22px rgba(17, 17, 17, 0.05);
+      }
+
+      .preset-card input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .preset-card.is-selected {
+        border-color: rgba(17, 17, 17, 0.95);
+        background: var(--active);
+        color: var(--active-text);
+        box-shadow: 0 16px 30px rgba(17, 17, 17, 0.12);
+      }
+
+      .preset-title {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .preset-meta {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .preset-card.is-selected .preset-meta {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      button {
+        border: 1px solid transparent;
+        border-radius: 14px;
+        font: inherit;
+        padding: 12px 14px;
+        cursor: pointer;
+        transition:
+          transform 150ms ease,
+          opacity 150ms ease,
+          box-shadow 150ms ease,
+          background 150ms ease,
+          color 150ms ease,
+          border-color 150ms ease;
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      .primary {
+        background: var(--active);
+        color: var(--active-text);
+        border-color: var(--active);
+        font-weight: 700;
+        box-shadow: 0 16px 30px rgba(17, 17, 17, 0.14);
+      }
+
+      .secondary {
+        background: var(--surface);
+        color: var(--text);
+        border-color: var(--panel-border);
+      }
+
+      .status,
+      .warnings {
+        border-radius: 16px;
+        padding: 14px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+      }
+
+      .status {
+        display: none;
+        box-shadow: var(--shadow);
+      }
+
+      .status.is-visible {
+        display: block;
+      }
+
+      .status[data-kind="info"] {
+        border-color: var(--panel-border-strong);
+      }
+
+      .status[data-kind="success"] {
+        border-color: rgba(17, 17, 17, 0.3);
+        color: var(--text);
+      }
+
+      .status[data-kind="error"] {
+        border-color: rgba(17, 17, 17, 0.32);
+        color: var(--text);
+      }
+
+      .status-title {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .status-message {
+        margin: 0;
+        color: inherit;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .warnings {
+        display: none;
+      }
+
+      .warnings.is-visible {
+        display: block;
+      }
+
+      .warnings-title {
+        margin: 0 0 8px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .warning-list {
+        display: grid;
+        gap: 6px;
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <span class="eyebrow">Website import</span>
+        <h1>Paste a URL and rebuild it in Figma.</h1>
+        <p class="copy">
+          The plugin sends the page to a capture service and can either rebuild
+          the result as editable layers or import the whole page as a long,
+          pixel-accurate screenshot.
+        </p>
+      </section>
+
+      <form id="import-form">
+        <label class="field">
+          <span class="field-label">Capture Service</span>
+          <input
+            id="service-url"
+            type="url"
+            placeholder="http://localhost:3210"
+            autocomplete="url"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Website URL</span>
+          <input
+            id="website-url"
+            type="url"
+            placeholder="https://example.com"
+            autocomplete="url"
+            required
+          />
+        </label>
+
+        <div class="field">
+          <span class="field-label">Import Mode</span>
+          <div class="preset-grid">
+            <label class="preset-card is-selected" data-mode-card="screenshot">
+              <input type="radio" name="mode" value="screenshot" checked />
+              <span class="preset-title">Screenshot</span>
+              <span class="preset-meta">Recommended for accurate visuals</span>
+            </label>
+
+            <label class="preset-card" data-mode-card="editable">
+              <input type="radio" name="mode" value="editable" />
+              <span class="preset-title">Editable</span>
+              <span class="preset-meta">Experimental DOM reconstruction</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Target Width</span>
+          <div class="preset-grid">
+            <label class="preset-card is-selected" data-preset-card="mobile">
+              <input type="radio" name="preset" value="mobile" checked />
+              <span class="preset-title">Mobile</span>
+              <span class="preset-meta">390px artboard</span>
+            </label>
+
+            <label class="preset-card" data-preset-card="desktop">
+              <input type="radio" name="preset" value="desktop" />
+              <span class="preset-title">Desktop</span>
+              <span class="preset-meta">1440px artboard</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="submit-button" class="primary" type="submit">
+            Import screenshot
+          </button>
+          <button id="close-button" class="secondary" type="button">
+            Close
+          </button>
+        </div>
+      </form>
+
+      <section id="status" class="status" data-kind="info">
+        <span class="status-title">Status</span>
+        <p id="status-message" class="status-message"></p>
+      </section>
+
+      <section id="warnings" class="warnings">
+        <h2 class="warnings-title">Capture notes</h2>
+        <ul id="warning-list" class="warning-list"></ul>
+      </section>
+    </div>
+
+    <!-- __UI_SCRIPT__ -->
+  </body>
+</html>

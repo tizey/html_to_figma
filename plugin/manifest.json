@@ -1,0 +1,13 @@
+{
+  "name": "Site to Figma",
+  "api": "1.0.0",
+  "editorType": ["figma"],
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "Users choose arbitrary public websites to import, and the plugin needs to fetch the capture service response plus referenced image assets.",
+    "devAllowedDomains": ["http://localhost:3210"]
+  }
+}
