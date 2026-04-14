@@ -1,0 +1,8 @@
+node_modules
+plugin
+service
+.git
+playwright-report
+test-results
+*.log
+curl-inertia-response.json

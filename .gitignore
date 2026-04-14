@@ -1,0 +1,9 @@
+node_modules/
+plugin/dist/
+service/dist/
+.env
+.DS_Store
+playwright-report/
+test-results/
+*.log
+curl-inertia-response.json
