@@ -78,6 +78,7 @@ app.post("/api/import", async (request, response) => {
     const viewport = viewportForPreset(preset);
     const captureId = randomUUID();
     const baseUrl = publicBaseUrl(request);
+    const pagePreparationWarnings: string[] = [];
 
     const browser = await getBrowser();
     const page = await browser.newPage({
@@ -94,19 +95,31 @@ app.post("/api/import", async (request, response) => {
         timeout: 30_000
       });
       await page.emulateMedia({ reducedMotion: "reduce" });
-      await page.addStyleTag({
-        content: `
-          *,
-          *::before,
-          *::after {
-            animation-duration: 0s !important;
-            animation-delay: 0s !important;
-            transition-duration: 0s !important;
-            transition-delay: 0s !important;
-            caret-color: transparent !important;
-          }
-        `
-      });
+      try {
+        await page.addStyleTag({
+          content: `
+            *,
+            *::before,
+            *::after {
+              animation-duration: 0s !important;
+              animation-delay: 0s !important;
+              transition-duration: 0s !important;
+              transition-delay: 0s !important;
+              caret-color: transparent !important;
+            }
+          `
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+
+        if (/content security policy|csp|unsafe-inline/i.test(message)) {
+          pagePreparationWarnings.push(
+            "The site blocked our animation-reduction style because of Content Security Policy. Import continued, but animated content may be less stable."
+          );
+        } else {
+          throw error;
+        }
+      }
 
       try {
         await page.waitForLoadState("networkidle", { timeout: 6_000 });
@@ -164,6 +177,7 @@ app.post("/api/import", async (request, response) => {
             screenshotSlices.length === 1 ? screenshotSlices[0]?.assetUrl : undefined,
           screenshotSlices,
           warnings: [
+            ...pagePreparationWarnings,
             screenshotSlices.length > 1
               ? `Screenshot mode is the most visually accurate option. This page was split into ${screenshotSlices.length} stacked image slices so Figma can import tall mobile captures safely.`
               : "Screenshot mode is the most visually accurate option. The imported result is a single image instead of editable text and layout layers."
@@ -832,6 +846,10 @@ app.post("/api/import", async (request, response) => {
         rawSnapshot.warnings.push(
           `${skippedInlineAssetCount} clipped visual fragments were skipped because they fell outside the captured page bounds.`
         );
+      }
+
+      if (pagePreparationWarnings.length > 0) {
+        rawSnapshot.warnings.unshift(...pagePreparationWarnings);
       }
 
       captureAssets.set(captureId, {
