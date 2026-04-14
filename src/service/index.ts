@@ -16,7 +16,8 @@ import type {
 
 const HOST = process.env.HOST ?? "0.0.0.0";
 const PORT = Number(process.env.PORT ?? 3210);
-const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL?.replace(/\/$/, "");
+const PUBLIC_BASE_URL =
+  process.env.PUBLIC_BASE_URL?.trim().replace(/\/+$/, "") || undefined;
 const CAPTURE_TTL_MS = 15 * 60 * 1000;
 const MAX_SCREENSHOT_SLICE_HEIGHT = 2048;
 
